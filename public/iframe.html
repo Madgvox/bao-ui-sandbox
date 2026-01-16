@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base target="_parent"/>
+    <script type="importmap">
+        {
+            "imports": {
+                "react": "https://esm.sh/stable/react@19.0.0",
+                "react-dom/client": "https://esm.sh/stable/react-dom@19.0.0/client",
+                "react-router": "https://esm.sh/stable/react-router@7.12.0?deps=react@19.0.0",
+                "@iframe-resizer/child": "https://esm.sh/stable/@iframe-resizer/child@5.5.7"
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="root"></div>
+    <!-- <script>
+        window.iFrameResizer = {
+            onMessage () {
+
+            }
+        }
+    </script> -->
+    <script type="module">
+        // Clean imports without long URLs
+        // import * as Resizer from '@iframe-resizer/child';
+        import React from 'react';
+        import { useEffect } from 'react';
+        import ReactDOM from 'react-dom/client';
+        import { createBrowserRouter, RouterProvider, Outlet, useNavigate, NavLink } from 'react-router';
+
+        const srcUrl = new URL(document.URL);
+        const srcOrigin = new URL(document.URL).origin;
+        const basename = srcUrl.pathname;
+
+        const params = new URLSearchParams(srcUrl.search);
+        history.replaceState(null, "", `${basename}/${params.get('initialRoute')}`);
+
+        let disableNavigationEvents = false;
+
+        window.history.pushState = function(state, title, url) {
+            if( disableNavigationEvents ) return;
+
+            if( url == null ) {
+                return;
+            }
+
+            let path;
+
+            if( typeof url === 'string' ) {
+                path = url.slice(basename.length);
+            } else {
+                path = url?.toString().slice(basename.length);
+            }
+
+            window.parent.postMessage({
+                type: 'child_navigate',
+                path: path,
+                method: 'push'
+            }, '*');
+
+            return;
+        };
+
+        window.history.replaceState = function(state, title, url) {
+            if( disableNavigationEvents ) return;
+
+            if( url == null ) {
+                return;
+            }
+
+            let path;
+
+            if( typeof url === 'string' ) {
+                path = url.slice(basename.length);
+            } else {
+                path = url?.toString().slice(basename.length);
+            }
+
+            window.parent.postMessage({
+                type: 'child_navigate',
+                path: path,
+                method: 'replace'
+            }, '*');
+
+            return;
+        };
+
+
+        function Layout () {
+            const navigate = useNavigate();
+
+            useEffect(() => {
+                window.parent.postMessage({"type": "ready"}, "*");
+
+                const handler = (event) => {
+                    console.log("Got event from root:", event.data);
+                    if( event.data.type === "navigate" ) {
+                        disableNavigationEvents = true;
+                        navigate(event.data.path, {
+                            replace: true
+                        });
+                        disableNavigationEvents = false;
+                    }
+                };
+                window.addEventListener("message", handler);
+
+                return () => window.removeEventListener("message", handler)
+            }, []);
+
+            return React.createElement(Outlet, null);
+        }
+
+        function Root () {
+            return React.createElement("div", null, React.createElement(NavLink, {to: "/sub"}, 'Go!'), " Root page");
+        }
+
+        function Sub () {
+            return React.createElement("div", null, React.createElement(NavLink, {to: "/"}, 'Go!'), " Sub page");
+        }
+
+        const router = createBrowserRouter([
+            {
+                Component: Layout,
+                children: [
+                    {
+                        path: "/",
+                        Component: Root,
+                    },
+                    {
+                        path: "/sub",
+                        Component: Sub,
+                    }
+                ]
+            },
+        ], {
+            basename: srcUrl.pathname
+        });
+
+        const app = React.createElement(
+            "div", null,
+            React.createElement('button', {onClick: () => { window.parent.postMessage({"message": "Hello world from iframe!"}, "*") }}, 'Goob!'),
+            React.createElement(RouterProvider, {router: router}),
+        )
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(app);
+    </script>
+</body>
+</html>
