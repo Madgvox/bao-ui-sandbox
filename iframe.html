@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base target="_parent"/>
+    <script type="importmap">
+        {
+            "imports": {
+                "react": "https://esm.sh/stable/react@19.0.0",
+                "react-dom/client": "https://esm.sh/stable/react-dom@19.0.0/client",
+                "react-router": "https://esm.sh/stable/react-router@7.12.0?deps=react@19.0.0",
+                "@iframe-resizer/child": "https://esm.sh/stable/@iframe-resizer/child@5.5.7"
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap');
+
+        :root {
+            --font-family-title: "Ubuntu", sans-serif;
+            --font-family-body: "Source Sans 3", sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            position: relative;
+            font-family: var(--default-font-family, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");
+            color: black;
+            min-height: 100vh;
+        }
+
+        main {
+            width: 100%;
+            height: 100%;
+        }
+
+        .body-text {
+            padding-top: 1rem;
+            max-width: 80ch;
+            word-break: normal;
+            white-space: pre-wrap;
+        }
+
+        #root {
+            width: 100%;
+            position: relative;
+        }
+
+        .container {
+            padding: 2rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: auto;
+        }
+
+        h1 {
+            /* font-size: 2.5rem; */
+            font-size: 30px;
+            /* font-family: var(--font-family-title); */
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            margin: 2rem 0 1.5rem;
+            font-weight: 500;
+        }
+
+        .nav-button {
+            /* flex items-center px-2 py-1.5 text-body rounded-base group */
+            border-radius: 0.25rem;
+            background: white;
+            color: black;
+            border: none;
+            padding: 12px;
+            cursor: pointer;
+
+            &.active {
+                background-color: #336d5c;
+                color: white;
+            }
+        }
+
+        .nav-buttons {
+            position: sticky;
+            top: 0;
+            padding: 6px;
+            display: flex;
+            gap: 0.25rem;
+            flex-wrap: wrap;
+            justify-content: left;
+            border-bottom: 1px solid #091a28;
+            background-color: white;
+        }
+
+        a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <!-- <script>
+        window.iFrameResizer = {
+            onMessage () {
+
+            }
+        }
+    </script> -->
+    <script type="module">
+        // Clean imports without long URLs
+        // import * as Resizer from '@iframe-resizer/child';
+        import React from 'react';
+        import { useEffect } from 'react';
+        import ReactDOM from 'react-dom/client';
+        import { createBrowserRouter, RouterProvider, Outlet, useLocation, NavLink } from 'react-router';
+
+        const srcUrl = new URL(document.URL);
+        const srcOrigin = new URL(document.URL).origin;
+        const basename = srcUrl.pathname;
+
+        const params = new URLSearchParams(srcUrl.search);
+        history.replaceState(null, "", `${basename}/${params.get('initialRoute')}`);
+
+        let disableNavigationEvents = false;
+
+        window.history.pushState = function(state, title, url) {
+            if( disableNavigationEvents ) return;
+
+            if( url == null ) {
+                return;
+            }
+
+            let path;
+
+            if( typeof url === 'string' ) {
+                path = url.slice(basename.length);
+            } else {
+                path = url?.toString().slice(basename.length);
+            }
+
+            window.parent.postMessage({
+                type: 'child_navigate',
+                path: path,
+                method: 'push'
+            }, '*');
+
+            return;
+        };
+
+        window.history.replaceState = function(state, title, url) {
+            if( disableNavigationEvents ) return;
+
+            if( url == null ) {
+                return;
+            }
+
+            let path;
+
+            if( typeof url === 'string' ) {
+                path = url.slice(basename.length);
+            } else {
+                path = url?.toString().slice(basename.length);
+            }
+
+            window.parent.postMessage({
+                type: 'child_navigate',
+                path: path,
+                method: 'replace'
+            }, '*');
+
+            return;
+        };
+
+        window.addEventListener("message", (event) => {
+            console.log("Got event from root:", event.data);
+            if( event.data.type === "navigate" ) {
+                disableNavigationEvents = true;
+                router.navigate(`/${event.data.path}`, {
+                    replace: true
+                });
+                disableNavigationEvents = false;
+            }
+        });
+
+        function Layout () {
+            const location = useLocation();
+
+            return React.createElement("main", null,
+                React.createElement("nav", {className: "nav-buttons"},
+                    React.createElement(NavLink, {className: "nav-button", to: "/"},
+                        React.createElement("span", null, "Plugin Home")
+                    ),
+                    React.createElement(NavLink, {className: "nav-button", to: "/page1"},
+                        React.createElement("span", null, "Plugin Page 1")
+                    ),
+                    React.createElement(NavLink, {className: "nav-button", to: "/page2"},
+                        React.createElement("span", null, "Plugin Page 2")
+                    ),
+                    React.createElement(NavLink, {className: "nav-button", to: "/page3"},
+                        React.createElement("span", null, "Plugin Page 3")
+                    ),
+                ),
+                React.createElement(Outlet, null)
+            )
+        }
+
+        function Home () {
+            return React.createElement("div", {className: "container"},
+                React.createElement("h1", null, "Plugin Home Page"),
+                React.createElement(NavLink, {className: "nav-button active", to: "/page2", replace: true}, "Replace with /page2"),
+                React.createElement("pre", {className: "body-text"}, `Lorem ipsum dolor sit amet, consectetur adipiscing elit. In ut viverra velit. Nulla ut augue efficitur erat faucibus laoreet. Aliquam non nulla quis lectus laoreet eleifend. Proin in faucibus dui. Nulla condimentum eu ipsum non tempor. Mauris ornare ipsum id est auctor scelerisque. Etiam interdum luctus mattis. Aenean laoreet a neque eget sagittis. Nulla sed felis vel enim pulvinar pulvinar. Nullam placerat, libero vel eleifend convallis, enim nibh ornare sem, id tristique lectus eros ac orci. Quisque non dignissim nisi. Suspendisse id elit risus. Phasellus pretium gravida diam, vel ullamcorper est euismod non. Quisque vestibulum sem vitae sem pharetra, in tristique diam fringilla. Pellentesque suscipit sapien neque, porta dapibus tellus eleifend ut. Mauris interdum scelerisque nulla vitae auctor.
+
+Proin fringilla volutpat nisi, sed tincidunt nunc maximus condimentum. Vivamus vestibulum, turpis vitae vehicula imperdiet, sapien lacus pulvinar mi, et vulputate massa mauris a ipsum. Etiam venenatis id ante a ultrices. Nunc elementum metus magna, et dictum mi rutrum vel. Cras mollis, dolor ut tempus gravida, sapien elit vestibulum lacus, vel tempor nunc lacus sit amet ligula. Quisque malesuada cursus purus vel bibendum. Proin lorem leo, ornare at consectetur sit amet, semper et nunc. Quisque ac scelerisque lorem.
+
+Fusce lobortis nunc id tellus iaculis, nec venenatis massa egestas. Cras vitae mi egestas, iaculis lorem non, sagittis dolor. Donec viverra est sed ornare tempus. Aliquam orci tellus, pharetra at volutpat id, euismod ut arcu. Curabitur semper lacus et est aliquet lacinia. Aliquam erat volutpat. Aenean rutrum consectetur dui quis auctor. Sed viverra, libero ut interdum cursus, ipsum ipsum tempus nisi, eu lacinia neque libero ut lacus. In nec neque neque. In sit amet felis varius, consequat leo ullamcorper, cursus purus. In quis maximus risus. Praesent lobortis et lacus quis faucibus. Pellentesque non justo efficitur, ultrices tortor ac, varius magna. Aliquam dictum mattis sapien non vehicula.
+
+Nulla condimentum risus eu lorem sagittis aliquet. Suspendisse potenti. Nam auctor, sapien eu placerat pharetra, erat ligula hendrerit est, eget luctus magna est a risus. Duis condimentum urna nec dapibus scelerisque. Sed at risus id metus lacinia dignissim non in augue. Pellentesque facilisis eget nunc nec semper. Sed pretium ante in quam aliquam imperdiet.
+
+Proin tristique lacinia dolor at sollicitudin. Ut ornare sapien et metus varius efficitur. Vivamus malesuada sed dui sit amet consectetur. Morbi sollicitudin vel odio at faucibus. Pellentesque lacinia convallis molestie. Etiam porta, tellus a efficitur consequat, lectus ipsum mollis enim, at sollicitudin justo dolor a odio. Cras ullamcorper pulvinar felis, non finibus nisi volutpat non. Curabitur non nibh dignissim tellus dictum faucibus. Nulla in pulvinar felis, ut hendrerit dolor. Suspendisse scelerisque elit feugiat massa feugiat ultricies eu sit amet leo. Fusce in mauris ipsum. Donec a posuere eros.
+
+Mauris elementum a metus vitae luctus. Vestibulum risus leo, malesuada vitae tincidunt sit amet, tempus vel lorem. Pellentesque porttitor turpis id blandit sagittis. Sed cursus elit ac laoreet ornare. Cras quis scelerisque ante, a pellentesque tellus. Sed a urna orci. Nulla facilisis placerat turpis, eget rutrum nisi hendrerit ut.
+
+Donec eu faucibus sapien. Suspendisse urna arcu, blandit at laoreet tincidunt, dignissim et augue. Nunc id porttitor ipsum. In iaculis lorem in magna pretium tempor. Cras feugiat elit vestibulum purus hendrerit, at placerat elit mattis. Quisque condimentum vitae metus quis suscipit. Fusce sodales elementum elit eget euismod. Mauris nec iaculis est.
+
+Nam vulputate justo et ullamcorper pretium. Donec sollicitudin lectus aliquam ultricies hendrerit. Morbi est tortor, rhoncus sed pulvinar ac, pretium et justo. Phasellus porttitor dapibus maximus. Phasellus felis purus, consequat in pretium vitae, gravida congue tellus. Nullam velit lectus, malesuada vitae efficitur vel, interdum non ex. Nulla facilisi. Nam vitae lacus vel libero lacinia auctor. Donec in nunc ac nunc pellentesque vulputate. Etiam interdum orci id quam finibus, in euismod leo consectetur.
+
+Maecenas lectus neque, vulputate id tortor quis, molestie accumsan est. Sed fermentum, velit et porttitor sagittis, odio tortor consequat dolor, quis consectetur risus sapien eu ex. Aliquam nec luctus turpis, ac euismod dui. Nunc purus nibh, tristique eget turpis ut, eleifend ultricies elit. Cras volutpat, metus vestibulum congue eleifend, nisi ligula egestas tellus, eget tempor nisl ante eget lacus. Cras ultricies, metus sit amet pharetra pellentesque, odio est vestibulum ipsum, ac vestibulum augue neque in lacus. Nam vestibulum tincidunt eros eget lobortis. Suspendisse in tortor non dui mattis maximus. Phasellus quis malesuada ex. Praesent sollicitudin dolor at diam ullamcorper, ac elementum dui gravida. Vivamus eu libero tellus. Donec quis lacus sagittis, sagittis nisi sed, dictum diam. Vivamus pulvinar arcu in purus accumsan efficitur. Praesent vulputate tortor vel consectetur euismod. Quisque suscipit facilisis magna. Donec tincidunt, erat et egestas aliquet, leo enim placerat quam, at consequat lectus nibh eu tellus.
+
+Pellentesque non ante sapien. Aenean vel diam sit amet mauris bibendum elementum et ut enim. Donec et nisl vel dolor blandit imperdiet at nec ante. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nullam congue lorem ac ante pellentesque, sit amet volutpat lectus volutpat. Etiam maximus ex scelerisque lectus luctus rutrum ac nec odio. Fusce tempor turpis augue, id tincidunt metus lacinia eget. Fusce sed risus mauris.`)
+            );
+        }
+
+        function Page1 () {
+            return React.createElement("div", {className: "container"},
+                React.createElement("h1", null, "Plugin Page 1"),
+            );
+        }
+
+        function Page2 () {
+            return React.createElement("div", {className: "container"},
+                React.createElement("h1", null, "Plugin Page 2"),
+            );
+        }
+
+        function Page3 () {
+            return React.createElement("div", {className: "container"},
+                React.createElement("h1", null, "Plugin Page 3"),
+            );
+        }
+
+        const router = createBrowserRouter([
+            {
+                Component: Layout,
+                ErrorBoundary: Layout,
+                children: [
+                    {
+                        path: "/",
+                        Component: Home,
+                    },
+                    {
+                        path: "/page1",
+                        Component: Page1,
+                    },
+                    {
+                        path: "/page2",
+                        Component: Page2,
+                    },
+                    {
+                        path: "/page3",
+                        Component: Page3,
+                    }
+                ]
+            },
+        ], {
+            basename: srcUrl.pathname
+        });
+
+        function Root () {
+            useEffect(() => {
+                window.parent.postMessage({"type": "ready"}, "*");
+            }, []);
+
+            return React.createElement(RouterProvider, {router: router});
+        }
+
+        const app = React.createElement(Root, null);
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(app);
+    </script>
+</body>
+</html>
