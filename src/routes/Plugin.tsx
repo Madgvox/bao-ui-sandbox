@@ -1,7 +1,6 @@
 import { useLocation, useNavigate, useParams } from "react-router";
 import { PluginFrame, type PluginAPI } from "../components/PluginFrame";
 import { useEffect, useMemo, useRef } from "react";
-import { Button } from "../components/Button";
 
 const Plugin = () => {
   const { "*": restParams } = useParams();
@@ -30,7 +29,6 @@ const Plugin = () => {
         replace: evt.method === "replace"
       });
     }
-    // console.log("Got event from frame:", evt);
   };
 
   useEffect(() => {
@@ -38,11 +36,11 @@ const Plugin = () => {
   }, [restParams])
 
   return <div>
-    <span>greg page: {restParams}</span>
-    <div>
-
-      <Button onClick={() => pluginFrame.current?.sendEvent({message: "Hello world from root!"})}>Top level goob!</Button>
-      <PluginFrame ref={pluginFrame} src={`/iframe.html?initialRoute=${initialRoute.current}`} onEvent={onEvent}></PluginFrame>
+    <div className="text-bao-border bg-white flex min-h-screen leading-[1.1] flex-col justify-center items-center text-center gap-2">
+      {/* <Button onClick={() => pluginFrame.current?.sendEvent({message: "Hello world from root!"})}>Top level goob!</Button> */}
+      <div className="block relative w-full h-screen">
+        <PluginFrame ref={pluginFrame} src={`/iframe.html?initialRoute=${initialRoute.current}`} onEvent={onEvent}></PluginFrame>
+      </div>
     </div>
   </div>
 };

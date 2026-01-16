@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "homepage": "https://madgvox.github.io/bao-ui-sandbox",
   "scripts": {
     "build": "rsbuild build",
-    "dev": "rsbuild dev --open",
+    "dev": "rsbuild dev",
     "format": "prettier --write .",
     "preview": "rsbuild preview",
     "storybook": "storybook dev -p 6006",
@@ -13,6 +14,7 @@
   },
   "dependencies": {
     "@iframe-resizer/react": "^5.5.7",
+    "@rsbuild/plugin-svgr": "^1.2.4",
     "esbuild-plugin-import-map": "^2.1.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",

@@ -14,7 +14,7 @@ const router = createBrowserRouter([
         Component: Root,
       },
       {
-        path: "/greg/*",
+        path: "/plugin/*",
         Component: Plugin,
       }
     ]

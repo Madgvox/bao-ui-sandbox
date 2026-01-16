@@ -15,6 +15,11 @@
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
     "noUncheckedSideEffectImports": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@public/*": ["./public/*"]
+    },
+
 
     /* type checking */
     "strict": true,

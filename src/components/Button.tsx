@@ -13,14 +13,15 @@ export function Button (props: ButtonProps) {
       {...rest}
       data-variant={ variant }
       onClick={props.onClick}
-      style={ {
-        padding: '8px 12px',
-        borderRadius: 6,
-        border: '1px solid',
-        cursor: 'pointer',
-        background: variant === 'primary' ? '#2563eb' : '#e5e7eb',
-        color: variant === 'primary' ? 'white' : 'black'
-      } }
+      className='p-3 rounded bg-bao-primary text-white font-(family-name:--font-family-body)'
+      // style={ {
+      //   padding: '8px 12px',
+      //   borderRadius: 6,
+      //   border: '1px solid',
+      //   cursor: 'pointer',
+      //   background: variant === 'primary' ? 'var(--bg-' : '#e5e7eb',
+      //   color: variant === 'primary' ? 'white' : 'black'
+      // } }
     >
       { children }
     </button>

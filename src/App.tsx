@@ -5,18 +5,29 @@ const App = () => {
   // const pluginFrame = useRef<PluginAPI | null>(null)
 
   // console.log("hello world!", new URL("./index.html", "http://localhost:3000/greg"));
-  
+
   return (
-    <div className="font-[Inter,Avenir,Helvetica,Arial,sans-serif] text-white bg-bao-primary flex min-h-screen leading-[1.1] flex-col justify-center items-center text-center">
-      <h1 className="text-[3.6rem] font-bold">Rsbuild with React</h1>
-      <p className="text-[1.2rem] font-semibold opacity-50">Start building amazing things with Rsbuild.</p>
-      <ul>
-        <li><NavLink to="/greg">Go to greg</NavLink></li>
-        <li><NavLink to="/greg/sub">Go to greg subpage</NavLink></li>
-        <li><NavLink to="/">Go to home</NavLink></li>
-      </ul>
+    <>
+    <aside className='fixed top-0 left-0 z-40 w-64 h-full border-r border-bao-border bg-white'>
+      <div className='p-4'>
+        <ul className="space-y-2 font-medium">
+          <li>
+              <NavLink to="/" className="nav flex items-center text-body rounded-base hover:text-fg-brand group">
+                <span className="ms-3">Home</span>
+              </NavLink>
+          </li>
+          <li>
+              <NavLink to="/plugin" className="nav flex items-center text-body rounded-base hover:text-fg-brand group">
+                <span className="ms-3">Sample Plugin</span>
+              </NavLink>
+          </li>
+        </ul>
+      </div>
+    </aside>
+    <main className='ml-64'>
       <Outlet />
-    </div>
+    </main>
+    </>
   );
 };
 
