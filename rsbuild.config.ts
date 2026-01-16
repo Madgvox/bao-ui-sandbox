@@ -13,5 +13,11 @@ export default defineConfig({
       '@': './src',
       '@public': './public',
     },
+  },
+  output: {
+    assetPrefix: '/bao-plugin-test/'
+  },
+  server: {
+    base: '/bao-plugin-test'
   }
 });

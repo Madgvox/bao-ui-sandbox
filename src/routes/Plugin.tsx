@@ -39,7 +39,7 @@ const Plugin = () => {
     <div className="text-bao-border bg-white flex min-h-screen leading-[1.1] flex-col justify-center items-center text-center gap-2">
       {/* <Button onClick={() => pluginFrame.current?.sendEvent({message: "Hello world from root!"})}>Top level goob!</Button> */}
       <div className="block relative w-full h-screen">
-        <PluginFrame ref={pluginFrame} src={`/iframe.html?initialRoute=${initialRoute.current}`} onEvent={onEvent}></PluginFrame>
+        <PluginFrame ref={pluginFrame} src={`/bao-plugin-test/iframe.html?initialRoute=${initialRoute.current}`} onEvent={onEvent}></PluginFrame>
       </div>
     </div>
   </div>

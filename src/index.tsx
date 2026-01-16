@@ -19,7 +19,9 @@ const router = createBrowserRouter([
       }
     ]
   },
-]);
+], {
+  basename: '/bao-plugin-test'
+});
 
 const rootEl = document.getElementById('root');
 if (rootEl) {
